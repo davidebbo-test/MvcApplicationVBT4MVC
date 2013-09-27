@@ -8,14 +8,14 @@ Imports WebMatrix.WebData
 
 <Authorize()> _
 <InitializeSimpleMembership()> _
-Public Class AccountController
+Partial Public Class AccountController
     Inherits System.Web.Mvc.Controller
 
     '
     ' GET: /Account/Login
 
     <AllowAnonymous()> _
-    Public Function Login(ByVal returnUrl As String) As ActionResult
+    Public Overridable Function Login(ByVal returnUrl As String) As ActionResult
         ViewData("ReturnUrl") = returnUrl
         Return View()
     End Function
@@ -26,7 +26,7 @@ Public Class AccountController
     <HttpPost()> _
     <AllowAnonymous()> _
     <ValidateAntiForgeryToken()> _
-    Public Function Login(ByVal model As LoginModel, ByVal returnUrl As String) As ActionResult
+    Public Overridable Function Login(ByVal model As LoginModel, ByVal returnUrl As String) As ActionResult
         If ModelState.IsValid AndAlso WebSecurity.Login(model.UserName, model.Password, persistCookie:=model.RememberMe) Then
             Return RedirectToLocal(returnUrl)
         End If
@@ -41,7 +41,7 @@ Public Class AccountController
 
     <HttpPost()> _
     <ValidateAntiForgeryToken()> _
-    Public Function LogOff() As ActionResult
+    Public Overridable Function LogOff() As ActionResult
         WebSecurity.Logout()
 
         Return RedirectToAction("Index", "Home")
@@ -51,7 +51,7 @@ Public Class AccountController
     ' GET: /Account/Register
 
     <AllowAnonymous()> _
-    Public Function Register() As ActionResult
+    Public Overridable Function Register() As ActionResult
         Return View()
     End Function
 
@@ -61,7 +61,7 @@ Public Class AccountController
     <HttpPost()> _
     <AllowAnonymous()> _
     <ValidateAntiForgeryToken()> _
-    Public Function Register(ByVal model As RegisterModel) As ActionResult
+    Public Overridable Function Register(ByVal model As RegisterModel) As ActionResult
         If ModelState.IsValid Then
             ' Attempt to register the user
             Try
@@ -83,7 +83,7 @@ Public Class AccountController
 
     <HttpPost()> _
     <ValidateAntiForgeryToken()> _
-    Public Function Disassociate(ByVal provider As String, ByVal providerUserId As String) As ActionResult
+    Public Overridable Function Disassociate(ByVal provider As String, ByVal providerUserId As String) As ActionResult
         ' Wrap in a transaction to prevent the user from accidentally disassociating all their accounts at one time.
 
         Dim ownerAccount = OAuthWebSecurity.GetUserName(provider, providerUserId)
@@ -108,7 +108,7 @@ Public Class AccountController
     '
     ' GET: /Account/Manage
 
-    Public Function Manage(ByVal message As ManageMessageId?) As ActionResult
+    Public Overridable Function Manage(ByVal message As ManageMessageId?) As ActionResult
         ViewData("StatusMessage") =
             If(message = ManageMessageId.ChangePasswordSuccess, "Your password has been changed.", _
                 If(message = ManageMessageId.SetPasswordSuccess, "Your password has been set.", _
@@ -125,7 +125,7 @@ Public Class AccountController
 
     <HttpPost()> _
     <ValidateAntiForgeryToken()> _
-    Public Function Manage(ByVal model As LocalPasswordModel) As ActionResult
+    Public Overridable Function Manage(ByVal model As LocalPasswordModel) As ActionResult
         Dim hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name))
         ViewData("HasLocalPassword") = hasLocalAccount
         ViewData("ReturnUrl") = Url.Action("Manage")
@@ -174,7 +174,7 @@ Public Class AccountController
     <HttpPost()> _
     <AllowAnonymous()> _
     <ValidateAntiForgeryToken()> _
-    Public Function ExternalLogin(ByVal provider As String, ByVal returnUrl As String) As ActionResult
+    Public Overridable Function ExternalLogin(ByVal provider As String, ByVal returnUrl As String) As ActionResult
         Return New ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", New With {.ReturnUrl = returnUrl}))
     End Function
 
@@ -182,7 +182,7 @@ Public Class AccountController
     ' GET: /Account/ExternalLoginCallback
 
     <AllowAnonymous()> _
-    Public Function ExternalLoginCallback(ByVal returnUrl As String) As ActionResult
+    Public Overridable Function ExternalLoginCallback(ByVal returnUrl As String) As ActionResult
         Dim result = OAuthWebSecurity.VerifyAuthentication(Url.Action("ExternalLoginCallback", New With {.ReturnUrl = returnUrl}))
         If Not result.IsSuccessful Then
             Return RedirectToAction("ExternalLoginFailure")
@@ -211,7 +211,7 @@ Public Class AccountController
     <HttpPost()> _
     <AllowAnonymous()> _
     <ValidateAntiForgeryToken()> _
-    Public Function ExternalLoginConfirmation(ByVal model As RegisterExternalLoginModel, ByVal returnUrl As String) As ActionResult
+    Public Overridable Function ExternalLoginConfirmation(ByVal model As RegisterExternalLoginModel, ByVal returnUrl As String) As ActionResult
         Dim provider As String = Nothing
         Dim providerUserId As String = Nothing
 
@@ -248,19 +248,19 @@ Public Class AccountController
     ' GET: /Account/ExternalLoginFailure
 
     <AllowAnonymous()> _
-    Public Function ExternalLoginFailure() As ActionResult
+    Public Overridable Function ExternalLoginFailure() As ActionResult
         Return View()
     End Function
 
     <AllowAnonymous()> _
     <ChildActionOnly()> _
-    Public Function ExternalLoginsList(ByVal returnUrl As String) As ActionResult
+    Public Overridable Function ExternalLoginsList(ByVal returnUrl As String) As ActionResult
         ViewData("ReturnUrl") = returnUrl
         Return PartialView("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData)
     End Function
 
     <ChildActionOnly()> _
-    Public Function RemoveExternalLogins() As ActionResult
+    Public Overridable Function RemoveExternalLogins() As ActionResult
         Dim accounts = OAuthWebSecurity.GetAccountsFromUserName(User.Identity.Name)
         Dim externalLogins = New List(Of ExternalLogin)()
         For Each account As OAuthAccount In accounts
