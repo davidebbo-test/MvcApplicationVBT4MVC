@@ -19,7 +19,7 @@ Imports System.Web.Mvc
 Imports System.Web.Mvc.Ajax
 Imports System.Web.Mvc.Html
 Imports System.Web.Routing
-Imports .T4MVC
+Imports MvcApplicationVBT4MVC.T4MVC
 Namespace T4MVC
     Public Class SharedController
 
