@@ -13,7 +13,6 @@ http://blog.davidebbo.com/ (previously: http://blogs.msdn.com/davidebb)
 Related blog posts: http://blogs.msdn.com/davidebb/archive/tags/T4MVC/default.aspx
 
 ### VB.NET PORT NOTES
-* Make sure you set RootNamespaceOfProject in the T4MVCVB.tt.settings file.
 VB has a couple of minor problems labled below as #VBPROBLEM
 
 Ported to VB.NET by DJP and Nick Prince
@@ -67,7 +66,15 @@ Imports System.Web.Mvc
 Imports System.Web.Mvc.Ajax
 Imports System.Web.Mvc.Html
 Imports System.Web.Routing
-Imports <#= settings.RootNamespaceOfProject #>.<#=settings.T4MVCNamespace #>
+<#
+	// Default Namespace needed for Import Statements
+	var hostServiceProvider = (IServiceProvider)Host;
+	var dte = (EnvDTE.DTE)hostServiceProvider.GetService(typeof(EnvDTE.DTE));
+	var activeSolutionProjects = (Array)dte.ActiveSolutionProjects;
+	var dteProject = (EnvDTE.Project)activeSolutionProjects.GetValue(0);
+	var defaultNamespace = dteProject.Properties.Item("DefaultNamespace").Value;
+#>
+Imports <#= defaultNamespace #>.<#=settings.T4MVCNamespace #>
 <#foreach (var referencedNamespace in settings.ReferencedNamespaces) { #>
 Imports <#=referencedNamespace #>
 <#} #>
@@ -1257,12 +1264,12 @@ static CodeAttribute2 GetAttribute(CodeClass2 type, string attributeType)
 {
     while(type != null) {
 		CodeAttribute2 attribute = null;
-		try {
+		//try {
 			// #VBPROBLEM
 			// type.Attributes somtimes(always?) throw a NonImplementedException on Controller types
 			attribute = GetAttribute(type.Attributes, attributeType);
-        }
-		catch {}
+        //}
+		//catch {}
 		//catch (NotImplementedException e) {}
         if(attribute != null)
             return attribute;
@@ -1665,7 +1672,7 @@ class FunctionInfo
                 }
             }
             
-			try {
+			//try {
 				Parameters.Add(
 					new MethodParamInfo()
 					{
@@ -1674,7 +1681,7 @@ class FunctionInfo
 						Type = p.Type.AsString,
 						DefaultValue = p.DefaultValue
 					});
-            } catch {
+            /*} catch {
 				// #VBPROBLEM
 				// p.DefaultValue sometimes(rarely) causes problems in VB
 				// Problem was on a parameter type of System.Web.Mvc.ControllerContext on a method Overriding Controller.ExecuteResult
@@ -1685,7 +1692,7 @@ class FunctionInfo
 						RouteNameExpression = routeNameExpression,
 						Type = p.Type.AsString
 					});
-            }
+            }*/
 
             _signature += "," + p.Type.AsString;
         }
@@ -1704,7 +1711,7 @@ class FunctionInfo
     private bool IsTaskBased { get {return ReturnTypeImpl.AsFullName == "System.Threading.Tasks.Task<System.Web.Mvc.ActionResult>"; } }
 
     // Write out all the parameters as part of a method declaration
-    public void WriteFormalParameters(bool first, bool includeDefaults = false)
+    public void WriteFormalParameters(bool first, bool includeDefaults = true)
     {
         foreach (var p in Parameters)
         {
@@ -1715,7 +1722,7 @@ class FunctionInfo
                 TT.Write(", ");
 
 			if(includeDefaults && !string.IsNullOrEmpty(p.DefaultValue))
-				TT.Write("Optional");
+				TT.Write("Optional ");
             TT.Write(p.Name + " As " + p.Type);
             if(includeDefaults && !string.IsNullOrEmpty(p.DefaultValue))
                 TT.Write(" = " + p.DefaultValue);
@@ -1904,8 +1911,8 @@ class MvcSettings : XmlSettings
     [System.ComponentModel.Description("The namespace used by some of T4MVC's generated code")]
     public string T4MVCNamespace { get; set; }
 
-	[System.ComponentModel.Description("The root namespace of the web project. (Required by VB.NET for Import statements.)")]
-	public string RootNamespaceOfProject { get; set; }
+	[System.ComponentModel.Description("The default namespace of the web project. (Required by VB.NET for Import statements.)")]
+	public string ProjectDefaultNamespace { get; set; }
 
     [System.ComponentModel.Description("The prefix used for things like MVC.Dinners.Name and MVC.Dinners.Delete(Model.DinnerID)")]
     public string HelpersPrefix { get; set; }

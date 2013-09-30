@@ -2,8 +2,8 @@
 <MvcSettings>
   <!--The namespace used by some of T4MVC's generated code-->
   <T4MVCNamespace>T4MVC</T4MVCNamespace>
-  <!-- The root namespace of the web project. (Required by VB.NET for Import statements.) -->
-  <RootNamespaceOfProject>MvcApplicationVBT4MVC</RootNamespaceOfProject>
+  <!--The default namespace of the web project. (Required by VB.NET for Import statements.)-->
+  <!--<ProjectDefaultNamespace></ProjectDefaultNamespace>-->
   <!--The prefix used for things like MVC.Dinners.Name and MVC.Dinners.Delete(Model.DinnerID)-->
   <HelpersPrefix>MVC</HelpersPrefix>
   <!--Namespaces to be referenced by the generated code-->
@@ -50,14 +50,15 @@ See http://mvccontrib.codeplex.com/workitem/7163 for potential issues with this 
   <StaticFilesFolders>
     <FileFolder>Scripts</FileFolder>
     <FileFolder>Content</FileFolder>
-    <FileFolder>ContentStatic\TextFiles</FileFolder>
   </StaticFilesFolders>
   <!--If true, static file helpers are generated for all view folders. See https://t4mvc.codeplex.com/discussions/445358-->
-  <AddAllViewsFoldersToStaticFilesFolders>True</AddAllViewsFoldersToStaticFilesFolders>
+  <AddAllViewsFoldersToStaticFilesFolders>False</AddAllViewsFoldersToStaticFilesFolders>
   <!--Static files to exclude from the generated links-->
   <ExcludedStaticFileExtensions>
     <Extension>.cs</Extension>
     <Extension>.cshtml</Extension>
+    <Extension>.vb</Extension>
+    <Extension>.vbhtml</Extension>
     <Extension>.aspx</Extension>
     <Extension>.ascx</Extension>
   </ExcludedStaticFileExtensions>
